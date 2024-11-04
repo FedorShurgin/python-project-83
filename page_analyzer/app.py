@@ -12,4 +12,4 @@ file_loader = FileSystemLoader('page_analyzer') #загрузчик
 env = Environment(loader=file_loader) #окружение
 
 tm_index = env.get_template('index.html')
-tm_index  .render()
+tm_index.render()

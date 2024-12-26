@@ -1,4 +1,4 @@
-def is_valid_tags(soup):
+def tags_parsing(soup):
     h1 = soup.find("h1")
     valid_h1 = h1.text[:255] if h1 is not None else ''
     title = soup.find("title")

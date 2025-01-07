@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 import os
-import psycopg2
-from page_analyzer.parser import parse, is_valid_len
-import validators
+from page_analyzer.urls import parse, validate_url
 import requests
-from bs4 import BeautifulSoup
-from page_analyzer.tags_parsing import tags_parsing
+from page_analyzer.parser import parse_html
 from page_analyzer.repository import UrlsRepository
 
 
@@ -14,8 +11,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 DATABASE_URL = os.getenv('DATABASE_URL')
-conn = psycopg2.connect(DATABASE_URL)
-repo = UrlsRepository(conn)
+repo = UrlsRepository(DATABASE_URL)
 
 
 @app.route("/")
@@ -32,16 +28,15 @@ def urls_get():
 @app.route("/urls", methods=['POST'])
 def urls_post():
     url = request.form.get('url')
-    pars_url = parse(url)
-    
-    if not is_valid_len(url):
-        flash('URL превышает 255 символов', 'alert-danger')
-        return redirect (url_for('index'))
-    
-    if not validators.url(url):
-        flash('Некорректный URL', 'alert-danger')
+
+    error_url = validate_url(url)
+
+    if error_url:
+        flash(error_url, 'alert-danger')
         return redirect(url_for('index'))
-    
+
+    pars_url = parse(url)
+
     result = repo.get_url_by_name(pars_url)
     if not result:
         result = repo.add_url(pars_url)
@@ -69,12 +64,9 @@ def check_post(id):
     except requests.RequestException:
         flash('Произошла ошибка при проверке', 'alert-danger')
         return redirect(url_for('url_show', id=id))
-    soup = BeautifulSoup(response.text, 'html.parser')
-    check_id = repo.add_check(id, response.status_code, *tags_parsing(soup))
+    _ = repo.add_check(id, response.status_code, parse_html(response.text))
     return redirect(url_for('url_show', id=id))
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-#создание собственных контекстных менеджеров!

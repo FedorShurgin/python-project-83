@@ -65,6 +65,7 @@ def check_post(id):
         flash('Произошла ошибка при проверке', 'alert-danger')
         return redirect(url_for('url_show', id=id))
     _ = repo.add_check(id, response.status_code, parse_html(response.text))
+    flash('Страница успешно проверена', 'alert-success')
     return redirect(url_for('url_show', id=id))
 
 

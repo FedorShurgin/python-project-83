@@ -20,7 +20,7 @@ class UrlsRepository:
     def __init__(self, db_name):
         self.db_name = db_name
 
-    def get_content(self):
+    def get_urls_list(self):
         with DatabaseConnection(self.db_name) as cur:
             cur.execute("""
                         SELECT

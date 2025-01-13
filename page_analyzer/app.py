@@ -21,7 +21,7 @@ def index():
 
 @app.route("/urls")
 def urls_get():
-    urls = repo.get_content()
+    urls = repo.get_urls_list()
     return render_template("urls.html", urls=urls)
 
 

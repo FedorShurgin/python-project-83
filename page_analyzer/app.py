@@ -33,7 +33,7 @@ def urls_post():
 
     if error_url:
         flash(error_url, 'alert-danger')
-        return redirect(url_for('index'))
+        return render_template('index.html'), 422
 
     pars_url = parse(url)
 
